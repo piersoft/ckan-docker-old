@@ -470,7 +470,7 @@ class DCATRDFHarvester(DCATHarvester):
                     res_uri = resource.get('uri')
                     res_disform = resource.get('distribution_format')
                     if not res_disform:
-                      resource['distribution_format']=resource['format']
+                      resource['distribution_format']=resource.get('format','')
                     if res_uri and res_uri in resource_mapping:
                         resource['id'] = resource_mapping[res_uri]
                         if not 'rights' in resource:
