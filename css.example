@@ -989,3 +989,7 @@ a:hover {
     padding-bottom: 30px;
     background-image: none;
 }
+input.form-control,
+textarea.form-control {
+  font-size: 0.9rem !important;
+}
