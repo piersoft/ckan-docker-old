@@ -72,6 +72,10 @@ COPY patches/sprite-resource-icons.png "${APP_DIR}/src/ckan/ckan/public/base/ima
 COPY patches/__init__.py ${APP_DIR}/src/ckan/ckan/logic/__init__.py
 # patch per avere il rating dal portale europeo dei dati aperti. Decommentare se si vuole il punteggio
 #COPY patches/read.html "${APP_DIR}/src/ckan/ckan/templates/package/read.html"
+# fix origin con landingpage e non /edit/
+COPY patches/language_selector.html ${APP_DIR}/src/ckan/ckan/templates/snippets/language_selector.html
+COPY patches/util.py ${APP_DIR}/src/ckan/ckan/views/util.py
+
 
 #FIX per XLOADER per il comando ckan xloader status. Consigliato:
 COPY patches/command.py /usr/lib/python3.10/site-packages/ckanext/xloader/command.py
