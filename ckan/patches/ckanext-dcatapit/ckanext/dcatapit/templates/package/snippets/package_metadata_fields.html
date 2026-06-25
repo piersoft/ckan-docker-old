@@ -1,7 +1,11 @@
 {% ckan_extends %}
-
-{% block package_metadata_fields %}
-
-  {{ super() }}
-
+{% block package_metadata_fields_url %}
+  {% set ns = namespace(landing_url=data.url) %}
+  {% for extra in (data.extras or []) %}
+    {% if extra.key == 'landingpage' and extra.value %}
+      {% set ns.landing_url = extra.value %}
+    {% endif %}
+  {% endfor %}
+  {% import 'macros/form.html' as form %}
+  {{ form.input('url', label=_('Source'), id='field-url', placeholder=_('http://example.com/dataset.json'), value=ns.landing_url, error=errors.url, classes=['control-medium']) }}
 {% endblock %}
