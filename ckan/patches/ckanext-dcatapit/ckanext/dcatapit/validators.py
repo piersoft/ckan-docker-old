@@ -245,6 +245,28 @@ def dcatapit_alternate_identifier(value, context):
     return json.dumps(data)
 
 
+def dcatapit_holder(value, context):
+    """
+    Validates rights holder list (DCAT 3-style, cardinalita 1..N)
+    """
+    if not value:
+        raise Invalid(_('Holder value should not be empty'))
+    try:
+        data = json.loads(value)
+    except (TypeError, ValueError):
+        raise Invalid(_('Invalid holder payload'))
+    if not isinstance(data, list):
+        raise Invalid(_('Invalid payload type {} for holder').format(type(data)))
+    allowed_keys = ['holder_name', 'holder_identifier']
+    for elm in data:
+        if not isinstance(elm, dict):
+            raise Invalid(_('Each holder element should be a dict'))
+        for k in elm.keys():
+            if k not in allowed_keys:
+                raise Invalid(_('Unexpected {} key in holder value').format(k))
+    return value
+
+
 def dcatapit_creator(value, context):
     """
     Validates creator list

@@ -233,6 +233,21 @@ class ItalianDCATAPProfile(RDFProfile):
 
         creators = self._parse_creators(dataset_ref)
 
+        # DCAT 3-style: rightsHolder con cardinalita 1..N, salvati come JSON
+        # nel campo "holder" (stesso pattern del campo "creator").
+        # holder_name/holder_identifier restano popolati (primo holder) per
+        # retrocompatibilita con UI e codice esistente.
+        holders = self._parse_holders(dataset_ref)
+        if holders:
+            self._remove_from_extra(dataset_dict, 'holder')
+            dataset_dict['holder'] = json.dumps(holders)
+            first = holders[0]
+            if first.get('holder_identifier'):
+                dataset_dict['holder_identifier'] = first['holder_identifier']
+            fname = first.get('holder_name') or {}
+            if fname.get(DEFAULT_LANG):
+                dataset_dict['holder_name'] = fname[DEFAULT_LANG]
+
         # use data from old method to populate new format
         from_old = {}
         if dataset_dict.get('creator_name'):
@@ -790,6 +805,21 @@ class ItalianDCATAPProfile(RDFProfile):
                     creator_name[DEFAULT_LANG] = str(obj)
             creator['creator_name'] = creator_name
             out.append(creator)
+        return out
+
+    def _parse_holders(self, dataset_ref):
+        out = []
+        for href in self.g.objects(dataset_ref, DCT.rightsHolder):
+            holder = {}
+            holder['holder_identifier'] = self._object_value(href, DCT.identifier)
+            holder_name = {}
+            for obj in self.g.objects(href, FOAF.name):
+                if obj.language:
+                    holder_name[str(obj.language)] = str(obj)
+                else:
+                    holder_name[DEFAULT_LANG] = str(obj)
+            holder['holder_name'] = holder_name
+            out.append(holder)
         return out
 
     def _parse_agent(self, subject, predicate, base_name):
@@ -1632,6 +1662,26 @@ class ItalianDCATAPProfile(RDFProfile):
 
     def _add_right_holder(self, dataset_dict, org_dict, ref):
         basekey = 'holder'
+        # DCAT 3-style: se il dataset ha la lista JSON "holder" (1..N),
+        # serializza un dct:rightsHolder per ciascun elemento e ritorna
+        # il ref del primo (per il mapping multilang a valle).
+        holders_data = dataset_dict.get('holder')
+        if not holders_data:
+            for extra in (dataset_dict.get('extras') or []):
+                if extra['key'] == 'holder':
+                    holders_data = extra['value']
+        try:
+            holders = json.loads(holders_data)
+        except (TypeError, ValueError):
+            holders = []
+        if holders:
+            self.g.remove((ref, DCT.rightsHolder, None))
+            first_ref = None
+            for holder in holders:
+                h_ref = self._add_agent(holder, ref, 'holder', DCT.rightsHolder)
+                if first_ref is None:
+                    first_ref = h_ref
+            return first_ref, True
         agent_name = self._get_dict_value(dataset_dict, basekey + '_name', None)
         agent_id = self._get_dict_value(dataset_dict, basekey + '_identifier', None)
         holder_ref = None

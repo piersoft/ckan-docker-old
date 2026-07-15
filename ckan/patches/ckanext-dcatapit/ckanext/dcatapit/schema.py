@@ -429,6 +429,17 @@ def get_custom_package_schema():
             'help_create': _('package_rights_holder_name_create_help')
         },
         {
+            'name': 'holder',
+            'element': 'holder',
+            'type': 'text',
+            'label': _('Titolare'),
+            'placeholder': '-',
+            'validator': ['ignore_missing', 'dcatapit_holder'],
+            'is_required': False,
+            'read_only': True,
+            'help': _('package_rights_holder_name_help')
+        },
+        {
             'name': 'frequency',
             'validator': ['not_empty'],
             'element': 'select',
