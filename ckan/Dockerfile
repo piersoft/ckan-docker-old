@@ -103,4 +103,5 @@ RUN for d in $APP_DIR/patches/*; do \
 RUN apt install nano
 RUN apt install curl -y
 RUN pip3 install setuptools==80
+RUN pip install --no-cache-dir -U certifi
 
