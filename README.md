@@ -1,13 +1,13 @@
 # Il docker CKAN per l'Italia
 
 > [!NOTE]  
-> Questa versione dockerizzata per CKAN 2.10.9 e PostGres SQL 16 ha scopo dimostrativo: non è una repository ufficiale. Vi consiglio di leggere il [CHANGELOG](https://github.com/piersoft/ckan-docker/blob/master/CHANGELOG.md) dove ci sono dei passaggi delicati da implementare o sostituire.
+> Questa versione dockerizzata per CKAN 2.10.10 e PostGres SQL 16 ha scopo dimostrativo: non è una repository ufficiale. Vi consiglio di leggere il [CHANGELOG](https://github.com/piersoft/ckan-docker/blob/master/CHANGELOG.md) dove ci sono dei passaggi delicati da implementare o sostituire.
 
 **Demo live**: https://www.piersoftckan.biz/
 
 ## Overview
 
-This is a set of configuration and setup files to run a CKAN site (CKAN 2.10.9 with OAI-PMH and DCAT_AP/IT).
+This is a set of configuration and setup files to run a CKAN site (CKAN 2.10.10 with OAI-PMH and DCAT_AP/IT).
 
 The CKAN images used are from the official CKAN [ckan-docker](https://github.com/ckan/ckan-docker-base) repo
 
