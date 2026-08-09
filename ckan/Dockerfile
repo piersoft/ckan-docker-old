@@ -68,6 +68,7 @@ COPY patches/jsonrpc.py /usr/local/lib/python3.10/site-packages/pylons/controlle
 COPY patches/core.py /usr/local/lib/python3.10/site-packages/pylons/controllers/core.py
 COPY patches/supervisord.conf /etc/supervisord.conf
 COPY patches/sprite-resource-icons.png "${APP_DIR}/src/ckan/ckan/public/base/images"
+COPY patches/ckan_logo_col.png "${APP_DIR}/src/ckan/ckan/public/base/images"
 # patch per user not auth to show in harvesting
 COPY patches/__init__.py ${APP_DIR}/src/ckan/ckan/logic/__init__.py
 # patch per avere il rating dal portale europeo dei dati aperti. Decommentare se si vuole il punteggio
