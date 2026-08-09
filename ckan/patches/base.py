@@ -6,8 +6,7 @@ Provides functions for rendering templates, aborting the request, etc.
 
 """
 from __future__ import annotations
-import model
-from pylons import request, config, tmpl_context as c
+
 import logging
 from typing import Any, NoReturn, Optional
 
@@ -22,6 +21,11 @@ import ckan.lib.helpers as h
 import ckan.plugins as p
 
 from ckan.common import request, config, session, g
+
+# Shim di compatibilita' per estensioni pre-2.10 (dcatapit, harvest, oai-pmh-server)
+# che fanno: from ckan.lib.base import model / c
+import ckan.model as model  # noqa: E402,F401
+from ckan.common import g as c  # noqa: E402,F401
 
 log = logging.getLogger(__name__)
 
@@ -131,6 +135,8 @@ def _allow_caching(cache_force: Optional[bool] = None):
     elif not config.get('ckan.cache_enabled'):
         allow_cache = False
 
+    # Any rendered template will have a login-sensitive header
+    request.environ['__limit_cache_by_cookie__'] = True
     if not allow_cache:
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
