@@ -1,4 +1,4 @@
-FROM ckan/ckan-base:2.10-py3.10-v20251029 AS ckan
+FROM ckan/ckan-base:2.10.10-py3.10 AS ckan
 
 USER root
 
@@ -56,15 +56,12 @@ RUN     pip3 install -r ${APP_DIR}/src/ckanext-oai-pmh-server/requirements.txt
 COPY patches/topics.json "${APP_DIR}/patches/topics.json"
 RUN chmod 666 "${APP_DIR}/patches/topics.json"
 
-# CKAN group to DCATAPIT theme mapping file
+# DCATAPIT regions vocabulary file
 COPY patches/regions.rdf "${APP_DIR}/patches/regions.rdf"
-RUN chmod 666 "${APP_DIR}/patches/topics.json"
+RUN chmod 666 "${APP_DIR}/patches/regions.rdf"
 
 COPY patches/model_dictize.py ${APP_DIR}/src/ckan/ckan/lib/dictization/model_dictize.py
 COPY patches/base.py ${APP_DIR}/src/ckan/ckan/lib/base.py
-
-#patch per landing page . elimina il campo Origine nel form di editing del dataset
-COPY patches/package_metadata_fields.html ${APP_DIR}/src/ckan/ckan/templates/package/snippets/package_metadata_fields.html
 
 COPY patches/xmlrpc.py /usr/local/lib/python3.10/site-packages/pylons/controllers/xmlrpc.py
 COPY patches/jsonrpc.py /usr/local/lib/python3.10/site-packages/pylons/controllers/jsonrpc.py
@@ -75,9 +72,12 @@ COPY patches/sprite-resource-icons.png "${APP_DIR}/src/ckan/ckan/public/base/ima
 COPY patches/__init__.py ${APP_DIR}/src/ckan/ckan/logic/__init__.py
 # patch per avere il rating dal portale europeo dei dati aperti. Decommentare se si vuole il punteggio
 #COPY patches/read.html "${APP_DIR}/src/ckan/ckan/templates/package/read.html"
+# fix origin con landingpage e non /edit/
+COPY patches/language_selector.html ${APP_DIR}/src/ckan/ckan/templates/snippets/language_selector.html
+COPY patches/util.py ${APP_DIR}/src/ckan/ckan/views/util.py
 
 #FIX per XLOADER per il comando ckan xloader status. Consigliato:
-COPY patches/command.py /usr/lib/python3.10/site-packages/ckanext/xloader/command.py
+COPY patches/command.py /usr/local/lib/python3.10/site-packages/ckanext/xloader/command.py
 
 # Min length resource = 5
 COPY patches/validators.py ${APP_DIR}/src/ckan/ckan/logic/validators.py
@@ -100,8 +100,14 @@ RUN for d in $APP_DIR/patches/*; do \
     done
 
 
-RUN apt install nano
-RUN apt install curl -y
-RUN pip3 install setuptools==80
-RUN pip install --no-cache-dir -U certifi
+# Script manuale per il setup iniziale dei gruppi tematici (vedi README)
+COPY setup_groups.sh ${APP_DIR}/setup_groups.sh
+RUN chmod +x ${APP_DIR}/setup_groups.sh
 
+# Utilita' di base (un solo layer, non interattivo)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends nano curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install setuptools==80
+RUN pip3 install --no-cache-dir -U certifi
